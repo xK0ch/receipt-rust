@@ -19,7 +19,7 @@ async fn get_one(id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
 #[post("/receipts")]
 async fn create() -> Result<HttpResponse, ApiError> {
     let receipt = Receipt::create()?;
-    Ok(HttpResponse::Ok().json(receipt))
+    Ok(HttpResponse::Created().json(receipt))
 }
 
 #[delete("/receipts/{id}")]

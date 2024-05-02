@@ -4,14 +4,12 @@ use crate::schema::receipt;
 use bigdecimal::{BigDecimal, FromPrimitive};
 use chrono::{NaiveDateTime, Utc};
 use diesel::expression_methods::ExpressionMethods;
-use diesel::prelude::{Insertable, Queryable, RunQueryDsl};
-use diesel::query_dsl::QueryDsl;
+use diesel::{Identifiable, Insertable, QueryDsl, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Queryable, Insertable)]
+#[derive(Serialize, Deserialize, Queryable, Insertable, Identifiable)]
 #[diesel(table_name = crate::schema::receipt)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Receipt {
     pub id: Uuid,
     pub sum: BigDecimal,

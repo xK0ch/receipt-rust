@@ -6,6 +6,7 @@ use crate::db::establish_connection;
 mod api_error;
 mod db;
 mod receipt;
+mod receipt_item;
 mod schema;
 
 use actix_web::{App, HttpServer};
@@ -29,8 +30,12 @@ async fn main() -> std::io::Result<()> {
     let host = env::var("HOST").expect("Host not set");
     let port = env::var("PORT").expect("Port not set");
 
-    let server = HttpServer::new(|| App::new().configure(receipt::init_routes))
-        .bind(format!("{}:{}", host, port))?;
+    let server = HttpServer::new(|| {
+        App::new()
+            .configure(receipt::init_routes)
+            .configure(receipt_item::init_routes)
+    })
+    .bind(format!("{}:{}", host, port))?;
 
     info!("Starting server");
 

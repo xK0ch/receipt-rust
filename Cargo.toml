@@ -7,7 +7,7 @@ description = "Receipt project build in Rust"
 readme = "README.md"
 
 [dependencies]
-actix-web = "4.5.0"
+actix-web = "4.5.1"
 bigdecimal = { version = "0.4.3", features = ["serde"] }
 chrono = { version = "0.4.38", features = ["serde"] }
 diesel = { version = "2.1.6", features = ["postgres", "uuid", "chrono", "numeric"] }
