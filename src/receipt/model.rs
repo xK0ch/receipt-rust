@@ -3,18 +3,24 @@ use crate::db::establish_connection;
 use crate::schema::receipt;
 use bigdecimal::{BigDecimal, FromPrimitive};
 use chrono::{NaiveDateTime, Utc};
-use diesel::expression_methods::ExpressionMethods;
-use diesel::{Identifiable, Insertable, QueryDsl, Queryable, RunQueryDsl};
+use diesel::{ExpressionMethods, Identifiable, Insertable, QueryDsl, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Queryable, Insertable, Identifiable)]
-#[diesel(table_name = crate::schema::receipt)]
-pub struct Receipt {
+#[derive(Serialize, Deserialize)]
+pub struct ReceiptView {
     pub id: Uuid,
     pub sum: BigDecimal,
+}
+
+#[derive(Serialize, Deserialize, Queryable, Insertable, Identifiable)]
+#[diesel(table_name = crate::schema::receipt)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct Receipt {
+    pub id: Uuid,
     pub created_at: NaiveDateTime,
     pub last_modified_at: NaiveDateTime,
+    pub sum: BigDecimal,
 }
 
 impl Receipt {
@@ -41,9 +47,9 @@ impl Receipt {
 
         let receipt_to_be_created = Receipt {
             id: Uuid::new_v4(),
-            sum: BigDecimal::from_f64(0.0).unwrap(),
             created_at: Utc::now().naive_utc(),
             last_modified_at: Utc::now().naive_utc(),
+            sum: BigDecimal::from_f64(0.00).unwrap().with_scale(2),
         };
 
         let created_receipt = diesel::insert_into(receipt::table)
