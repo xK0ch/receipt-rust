@@ -1,8 +1,8 @@
-use crate::api_error::ApiError;
-use crate::db::establish_connection;
+use crate::core::ApiError;
+use crate::core::database::establish_connection;
+use crate::core::database::schema::receipt;
+use crate::core::database::schema::receipt::{last_modified_at, sum};
 use crate::receipt_item::ReceiptItem;
-use crate::schema::receipt;
-use crate::schema::receipt::{last_modified_at, sum};
 use bigdecimal::BigDecimal;
 use chrono::{DateTime, Utc};
 use diesel::{ExpressionMethods, Identifiable, Insertable, QueryDsl, Queryable, RunQueryDsl};
@@ -18,7 +18,7 @@ pub struct ReceiptView {
 }
 
 #[derive(Serialize, Deserialize, Queryable, Insertable, Identifiable)]
-#[diesel(table_name = crate::schema::receipt)]
+#[diesel(table_name = crate::core::database::schema::receipt)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Receipt {
     pub id: Uuid,
@@ -57,7 +57,7 @@ impl Receipt {
         };
 
         let created_receipt = diesel::insert_into(receipt::table)
-            .values(receipt_to_be_created)
+            .values(&receipt_to_be_created)
             .get_result(connection)?;
 
         Ok(created_receipt)

@@ -1,9 +1,9 @@
-use crate::api_error::ApiError;
-use crate::db::establish_connection;
+use crate::core::ApiError;
+use crate::core::database::establish_connection;
+use crate::core::database::schema::receipt_item;
+use crate::core::database::schema::receipt_item::{amount, last_modified_at, name, price};
 use crate::receipt::Receipt;
 use crate::receipt_item::mapper;
-use crate::schema::receipt_item;
-use crate::schema::receipt_item::{amount, last_modified_at, name, price};
 use bigdecimal::BigDecimal;
 use chrono::{DateTime, Utc};
 use diesel::{
@@ -38,7 +38,7 @@ pub struct ReceiptItemUpdateOrder {
 
 #[derive(Serialize, Deserialize, Queryable, Insertable, Associations, Identifiable)]
 #[diesel(belongs_to(Receipt))]
-#[diesel(table_name = receipt_item)]
+#[diesel(table_name = crate::core::database::schema::receipt_item)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct ReceiptItem {
     pub id: Uuid,

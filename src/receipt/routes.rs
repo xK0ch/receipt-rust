@@ -1,4 +1,4 @@
-use crate::api_error::ApiError;
+use crate::core::ApiError;
 use crate::receipt::model::ReceiptView;
 use crate::receipt::{mapper, Receipt};
 use actix_web::{delete, get, post, web, HttpResponse};
