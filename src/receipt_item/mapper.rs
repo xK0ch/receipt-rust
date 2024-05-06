@@ -12,17 +12,14 @@ pub fn to_view(receipt_item: ReceiptItem) -> ReceiptItemView {
     }
 }
 
-pub fn from_create_order(
-    create_order: ReceiptItemCreateOrder,
-    receipt_item_id: Uuid,
-) -> ReceiptItem {
+pub fn from_create_order(create_order: ReceiptItemCreateOrder, receipt_id: Uuid) -> ReceiptItem {
     ReceiptItem {
         id: Uuid::new_v4(),
         price: create_order.price.with_scale(2),
         name: create_order.name,
         amount: create_order.amount,
-        created_at: Utc::now().naive_utc(),
-        last_modified_at: Utc::now().naive_utc(),
-        receipt_id: receipt_item_id,
+        created_at: Utc::now(),
+        last_modified_at: Utc::now(),
+        receipt_id,
     }
 }

@@ -3,9 +3,9 @@ CREATE
 
 CREATE TABLE receipt
 (
-    id               UUID           NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
-    created_at       TIMESTAMP      NOT NULL DEFAULT current_timestamp,
-    last_modified_at TIMESTAMP      NOT NULL DEFAULT current_timestamp,
+    id               UUID                     NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+    created_at       TIMESTAMP WITH TIME ZONE NOT NULL,
+    last_modified_at TIMESTAMP WITH TIME ZONE NOT NULL,
 
-    sum              NUMERIC(10, 2) NOT NULL
+    sum              NUMERIC(10, 2)           NOT NULL
 );

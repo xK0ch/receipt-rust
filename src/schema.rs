@@ -3,8 +3,8 @@
 diesel::table! {
     receipt (id) {
         id -> Uuid,
-        created_at -> Timestamp,
-        last_modified_at -> Timestamp,
+        created_at -> Timestamptz,
+        last_modified_at -> Timestamptz,
         sum -> Numeric,
     }
 }
@@ -12,8 +12,8 @@ diesel::table! {
 diesel::table! {
     receipt_item (id) {
         id -> Uuid,
-        created_at -> Timestamp,
-        last_modified_at -> Timestamp,
+        created_at -> Timestamptz,
+        last_modified_at -> Timestamptz,
         #[max_length = 255]
         name -> Varchar,
         amount -> Int4,

@@ -1,5 +1,5 @@
 use diesel::pg::PgConnection;
-use diesel::prelude::*;
+use diesel::Connection;
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness};
 use std::env;
 

@@ -22,10 +22,9 @@ async fn get_one(receipt_item_id: web::Path<Uuid>) -> Result<HttpResponse, ApiEr
 }
 
 #[post("/receiptItems")]
-async fn create(
-    receipt_item_create_order: web::Json<ReceiptItemCreateOrder>,
-) -> Result<HttpResponse, ApiError> {
-    let receipt_item = ReceiptItem::create(receipt_item_create_order.into_inner())?;
+async fn create(create_order: web::Json<ReceiptItemCreateOrder>) -> Result<HttpResponse, ApiError> {
+    let receipt_item = ReceiptItem::create(create_order.into_inner())?;
+
     Ok(HttpResponse::Created().json(mapper::to_view(receipt_item)))
 }
 
@@ -38,7 +37,7 @@ async fn update(
         receipt_item_id.into_inner(),
         receipt_item_create_order.into_inner(),
     )?;
-    Ok(HttpResponse::Created().json(mapper::to_view(receipt_item)))
+    Ok(HttpResponse::Ok().json(mapper::to_view(receipt_item)))
 }
 
 #[delete("/receiptItems/{receiptItemId}")]

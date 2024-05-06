@@ -3,7 +3,7 @@ version: '3.7'
 services:
   app:
     build: .
-    image: 'receipt-rust-app'
+    image: 'receipt-app'
     container_name: 'receipt-app'
     ports:
       - "8080:8080"
@@ -16,6 +16,6 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=letmein
-      - POSTGRES_DB=receipt
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "letmein"
+      POSTGRES_DB: "receipt"
