@@ -1,7 +1,8 @@
-use crate::core::ApiError;
+use crate::core::api::api_error::not_found;
 use crate::core::database::establish_connection;
 use crate::core::database::schema::receipt_item;
 use crate::core::database::schema::receipt_item::{amount, last_modified_at, name, price};
+use crate::core::ApiError;
 use crate::receipt::Receipt;
 use crate::receipt_item::mapper;
 use bigdecimal::BigDecimal;
@@ -52,35 +53,31 @@ pub struct ReceiptItem {
 
 impl ReceiptItem {
     pub fn get_all_by_receipt(receipt_id: Uuid) -> Result<Vec<Self>, ApiError> {
-        let connection = &mut establish_connection();
-
         let receipt = Receipt::get_one(receipt_id)?;
 
-        let receipt_items = ReceiptItem::belonging_to(&receipt).load(connection)?;
+        let receipt_items = ReceiptItem::belonging_to(&receipt).load(&mut establish_connection())?;
 
         Ok(receipt_items)
     }
 
     pub fn get_one(receipt_item_id: Uuid) -> Result<Self, ApiError> {
-        let connection = &mut establish_connection();
-
-        let receipt_item = receipt_item::table
+        match receipt_item::table
             .filter(receipt_item::id.eq(receipt_item_id))
-            .first(connection)?;
-
-        Ok(receipt_item)
+            .first(&mut establish_connection())
+        {
+            Ok(receipt) => Ok(receipt),
+            Err(error) => not_found::<Self>(error, "ReceiptItem", receipt_item_id),
+        }
     }
 
     pub fn create(create_order: ReceiptItemCreateOrder) -> Result<Self, ApiError> {
-        let connection = &mut establish_connection();
-
         let receipt = Receipt::get_one(create_order.receipt_id)?;
 
         let receipt_item_to_be_created = mapper::from_create_order(create_order, receipt.id);
 
         let created_receipt_item: ReceiptItem = diesel::insert_into(receipt_item::table)
             .values(receipt_item_to_be_created)
-            .get_result(connection)?;
+            .get_result(&mut establish_connection())?;
 
         Receipt::calculate_sum(created_receipt_item.receipt_id)?;
 
@@ -88,32 +85,25 @@ impl ReceiptItem {
     }
 
     pub fn update(
-        receipt_item_id: Uuid,
+        receipt_item: ReceiptItem,
         update_order: ReceiptItemUpdateOrder,
     ) -> Result<Self, ApiError> {
-        let connection = &mut establish_connection();
-
-        let updated_receipt_item: ReceiptItem = diesel::update(receipt_item::table)
-            .filter(receipt_item::id.eq(receipt_item_id))
+        let updated_receipt_item: ReceiptItem = diesel::update(&receipt_item)
             .set((
                 name.eq(update_order.name),
                 amount.eq(update_order.amount),
                 price.eq(update_order.price),
                 last_modified_at.eq(Utc::now()),
             ))
-            .get_result(connection)?;
+            .get_result(&mut establish_connection())?;
 
         Receipt::calculate_sum(updated_receipt_item.receipt_id)?;
 
         Ok(updated_receipt_item)
     }
 
-    pub fn delete(receipt_item_id: Uuid) -> Result<usize, ApiError> {
-        let connection = &mut establish_connection();
-
-        let receipt_item: ReceiptItem = ReceiptItem::get_one(receipt_item_id)?;
-
-        let result = diesel::delete(&receipt_item).execute(connection)?;
+    pub fn delete(receipt_item: ReceiptItem) -> Result<usize, ApiError> {
+        let result = diesel::delete(&receipt_item).execute(&mut establish_connection())?;
 
         Receipt::calculate_sum(receipt_item.receipt_id)?;
 

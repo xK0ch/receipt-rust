@@ -24,7 +24,4 @@ diesel::table! {
 
 diesel::joinable!(receipt_item -> receipt (receipt_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    receipt,
-    receipt_item,
-);
+diesel::allow_tables_to_appear_in_same_query!(receipt, receipt_item);

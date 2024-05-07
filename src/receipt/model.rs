@@ -1,7 +1,8 @@
-use crate::core::ApiError;
+use crate::core::api::api_error::not_found;
 use crate::core::database::establish_connection;
 use crate::core::database::schema::receipt;
 use crate::core::database::schema::receipt::{last_modified_at, sum};
+use crate::core::ApiError;
 use crate::receipt_item::ReceiptItem;
 use bigdecimal::BigDecimal;
 use chrono::{DateTime, Utc};
@@ -29,26 +30,22 @@ pub struct Receipt {
 
 impl Receipt {
     pub fn get_all() -> Result<Vec<Self>, ApiError> {
-        let connection = &mut establish_connection();
-
-        let receipts = receipt::table.load::<Receipt>(connection)?;
+        let receipts = receipt::table.load::<Receipt>(&mut establish_connection())?;
 
         Ok(receipts)
     }
 
-    pub fn get_one(id: Uuid) -> Result<Self, ApiError> {
-        let connection = &mut establish_connection();
-
-        let receipt = receipt::table
-            .filter(receipt::id.eq(id))
-            .first(connection)?;
-
-        Ok(receipt)
+    pub fn get_one(receipt_id: Uuid) -> Result<Self, ApiError> {
+        match receipt::table
+            .filter(receipt::id.eq(receipt_id))
+            .first(&mut establish_connection())
+        {
+            Ok(receipt) => Ok(receipt),
+            Err(error) => not_found::<Self>(error, "Receipt", receipt_id),
+        }
     }
 
     pub fn create() -> Result<Self, ApiError> {
-        let connection = &mut establish_connection();
-
         let receipt_to_be_created = Receipt {
             id: Uuid::new_v4(),
             created_at: Utc::now(),
@@ -57,17 +54,15 @@ impl Receipt {
         };
 
         let created_receipt = diesel::insert_into(receipt::table)
-            .values(&receipt_to_be_created)
-            .get_result(connection)?;
+            .values(receipt_to_be_created)
+            .get_result(&mut establish_connection())?;
 
         Ok(created_receipt)
     }
 
-    pub fn delete(id: Uuid) -> Result<usize, ApiError> {
-        let connection = &mut establish_connection();
-
-        let result =
-            diesel::delete(receipt::table.filter(receipt::id.eq(id))).execute(connection)?;
+    pub fn delete(receipt_id: Uuid) -> Result<usize, ApiError> {
+        let result = diesel::delete(receipt::table.filter(receipt::id.eq(receipt_id)))
+            .execute(&mut establish_connection())?;
 
         Ok(result)
     }

@@ -8,28 +8,33 @@ use uuid::Uuid;
 #[get("/receipts")]
 async fn get_all() -> Result<HttpResponse, ApiError> {
     let receipts = Receipt::get_all()?;
+
     let receipt_views: Vec<ReceiptView> = receipts
         .into_iter()
         .map(|receipt| mapper::to_view(receipt))
         .collect();
+
     Ok(HttpResponse::Ok().json(receipt_views))
 }
 
-#[get("/receipts/{id}")]
+#[get("/receipts/{receiptId}")]
 async fn get_one(id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
     let receipt = Receipt::get_one(id.into_inner())?;
+
     Ok(HttpResponse::Ok().json(mapper::to_view(receipt)))
 }
 
 #[post("/receipts")]
 async fn create() -> Result<HttpResponse, ApiError> {
     let receipt = Receipt::create()?;
+
     Ok(HttpResponse::Created().json(mapper::to_view(receipt)))
 }
 
-#[delete("/receipts/{id}")]
-async fn delete(id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
-    Receipt::delete(id.into_inner())?;
+#[delete("/receipts/{receiptId}")]
+async fn delete(receipt_id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
+    Receipt::delete(receipt_id.into_inner())?;
+
     Ok(HttpResponse::Ok().json(json!({})))
 }
 

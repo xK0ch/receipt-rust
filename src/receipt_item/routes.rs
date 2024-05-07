@@ -8,16 +8,19 @@ use uuid::Uuid;
 #[get("/receiptItems/receipts/{receiptId}")]
 async fn get_all_by_receipt(receipt_id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
     let receipt_items = ReceiptItem::get_all_by_receipt(receipt_id.into_inner())?;
+
     let receipt_item_views: Vec<ReceiptItemView> = receipt_items
         .into_iter()
         .map(|receipt_item| mapper::to_view(receipt_item))
         .collect();
+
     Ok(HttpResponse::Ok().json(receipt_item_views))
 }
 
 #[get("/receiptItems/{receiptItemId}")]
 async fn get_one(receipt_item_id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
     let receipt_item = ReceiptItem::get_one(receipt_item_id.into_inner())?;
+
     Ok(HttpResponse::Ok().json(mapper::to_view(receipt_item)))
 }
 
@@ -33,16 +36,19 @@ async fn update(
     receipt_item_id: web::Path<Uuid>,
     receipt_item_create_order: web::Json<ReceiptItemUpdateOrder>,
 ) -> Result<HttpResponse, ApiError> {
-    let receipt_item = ReceiptItem::update(
-        receipt_item_id.into_inner(),
-        receipt_item_create_order.into_inner(),
-    )?;
+    let receipt_item = ReceiptItem::get_one(receipt_item_id.into_inner())?;
+
+    let receipt_item = ReceiptItem::update(receipt_item, receipt_item_create_order.into_inner())?;
+
     Ok(HttpResponse::Ok().json(mapper::to_view(receipt_item)))
 }
 
 #[delete("/receiptItems/{receiptItemId}")]
 async fn delete(receipt_item_id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
-    ReceiptItem::delete(receipt_item_id.into_inner())?;
+    let receipt_item: ReceiptItem = ReceiptItem::get_one(receipt_item_id.into_inner())?;
+
+    ReceiptItem::delete(receipt_item)?;
+
     Ok(HttpResponse::Ok().json(json!({})))
 }
 
