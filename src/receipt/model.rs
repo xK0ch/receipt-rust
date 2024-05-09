@@ -60,9 +60,8 @@ impl Receipt {
         Ok(created_receipt)
     }
 
-    pub fn delete(receipt_id: Uuid) -> Result<usize, ApiError> {
-        let result = diesel::delete(receipt::table.filter(receipt::id.eq(receipt_id)))
-            .execute(&mut establish_connection())?;
+    pub fn delete(receipt: &Receipt) -> Result<usize, ApiError> {
+        let result = diesel::delete(receipt).execute(&mut establish_connection())?;
 
         Ok(result)
     }

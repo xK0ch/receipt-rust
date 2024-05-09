@@ -1,6 +1,7 @@
 use crate::core::ApiError;
 use crate::receipt::model::ReceiptView;
-use crate::receipt::{mapper, Receipt};
+use crate::receipt::Receipt;
+use crate::receipt_item::ReceiptItem;
 use actix_web::{delete, get, post, web, HttpResponse};
 use serde_json::json;
 use uuid::Uuid;
@@ -11,7 +12,7 @@ async fn get_all() -> Result<HttpResponse, ApiError> {
 
     let receipt_views: Vec<ReceiptView> = receipts
         .into_iter()
-        .map(|receipt| mapper::to_view(receipt))
+        .map(|receipt| ReceiptView::from(receipt))
         .collect();
 
     Ok(HttpResponse::Ok().json(receipt_views))
@@ -21,19 +22,22 @@ async fn get_all() -> Result<HttpResponse, ApiError> {
 async fn get_one(id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
     let receipt = Receipt::get_one(id.into_inner())?;
 
-    Ok(HttpResponse::Ok().json(mapper::to_view(receipt)))
+    Ok(HttpResponse::Ok().json(ReceiptView::from(receipt)))
 }
 
 #[post("/receipts")]
 async fn create() -> Result<HttpResponse, ApiError> {
     let receipt = Receipt::create()?;
 
-    Ok(HttpResponse::Created().json(mapper::to_view(receipt)))
+    Ok(HttpResponse::Created().json(ReceiptView::from(receipt)))
 }
 
 #[delete("/receipts/{receiptId}")]
 async fn delete(receipt_id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
-    Receipt::delete(receipt_id.into_inner())?;
+    let found_receipt: Receipt = Receipt::get_one(receipt_id.into_inner())?;
+
+    ReceiptItem::delete_all_by_receipt(&found_receipt)?;
+    Receipt::delete(&found_receipt)?;
 
     Ok(HttpResponse::Ok().json(json!({})))
 }

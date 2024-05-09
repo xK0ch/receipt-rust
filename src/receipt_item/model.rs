@@ -4,7 +4,6 @@ use crate::core::database::schema::receipt_item;
 use crate::core::database::schema::receipt_item::{amount, last_modified_at, name, price};
 use crate::core::ApiError;
 use crate::receipt::Receipt;
-use crate::receipt_item::mapper;
 use bigdecimal::BigDecimal;
 use chrono::{DateTime, Utc};
 use diesel::{
@@ -73,7 +72,7 @@ impl ReceiptItem {
     pub fn create(create_order: ReceiptItemCreateOrder) -> Result<Self, ApiError> {
         let receipt = Receipt::get_one(create_order.receipt_id)?;
 
-        let receipt_item_to_be_created = mapper::from_create_order(create_order, receipt.id);
+        let receipt_item_to_be_created: ReceiptItem = (create_order, receipt.id).into();
 
         let created_receipt_item: ReceiptItem = diesel::insert_into(receipt_item::table)
             .values(receipt_item_to_be_created)
@@ -102,10 +101,17 @@ impl ReceiptItem {
         Ok(updated_receipt_item)
     }
 
-    pub fn delete(receipt_item: ReceiptItem) -> Result<usize, ApiError> {
-        let result = diesel::delete(&receipt_item).execute(&mut establish_connection())?;
+    pub fn delete(receipt_item: &ReceiptItem) -> Result<usize, ApiError> {
+        let result = diesel::delete(receipt_item).execute(&mut establish_connection())?;
 
         Receipt::calculate_sum(receipt_item.receipt_id)?;
+
+        Ok(result)
+    }
+
+    pub fn delete_all_by_receipt(receipt: &Receipt) -> Result<usize, ApiError> {
+        let result = diesel::delete(ReceiptItem::belonging_to(receipt))
+            .execute(&mut establish_connection())?;
 
         Ok(result)
     }
