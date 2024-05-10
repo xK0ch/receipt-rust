@@ -10,9 +10,10 @@ use diesel::{ExpressionMethods, Identifiable, Insertable, QueryDsl, Queryable, R
 use serde::{Deserialize, Serialize};
 use std::ops::{Add, Mul};
 use std::str::FromStr;
+use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, ToSchema)]
 pub struct ReceiptView {
     pub id: Uuid,
     pub sum: BigDecimal,

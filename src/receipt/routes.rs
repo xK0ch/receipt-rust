@@ -6,8 +6,12 @@ use actix_web::{delete, get, post, web, HttpResponse};
 use serde_json::json;
 use uuid::Uuid;
 
+#[utoipa::path(
+responses(
+(status = 200, description = "OK", body = ReceiptView),),
+)]
 #[get("/receipts")]
-async fn get_all() -> Result<HttpResponse, ApiError> {
+pub async fn get_all() -> Result<HttpResponse, ApiError> {
     let receipts = Receipt::get_all()?;
 
     let receipt_views: Vec<ReceiptView> = receipts

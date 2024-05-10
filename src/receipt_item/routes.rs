@@ -38,7 +38,8 @@ async fn update(
 ) -> Result<HttpResponse, ApiError> {
     let receipt_item = ReceiptItem::get_one(receipt_item_id.into_inner())?;
 
-    let updated_receipt_item = ReceiptItem::update(receipt_item, receipt_item_create_order.into_inner())?;
+    let updated_receipt_item =
+        ReceiptItem::update(receipt_item, receipt_item_create_order.into_inner())?;
 
     Ok(HttpResponse::Ok().json(ReceiptItemView::from(updated_receipt_item)))
 }

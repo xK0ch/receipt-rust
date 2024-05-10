@@ -24,6 +24,8 @@ pub mod receipt {
     mod routes;
 
     pub use model::Receipt;
+    pub use model::ReceiptView;
+    pub use routes::__path_get_all;
     pub use routes::init_routes;
 }
 
@@ -37,15 +39,25 @@ pub mod receipt_item {
 }
 
 use crate::core::database::establish_connection;
+use crate::receipt::__path_get_all;
 use actix_web::{App, HttpServer};
 use dotenv::dotenv;
 use log::info;
+use receipt::ReceiptView;
 use std::env;
+use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
+
+    #[derive(OpenApi)]
+    #[openapi(paths(get_all), components(schemas(ReceiptView)))]
+    struct ApiDoc;
+
+    let openapi = ApiDoc::openapi();
 
     info!("Connecting to database");
 
@@ -58,10 +70,13 @@ async fn main() -> std::io::Result<()> {
     let host = env::var("HOST").expect("Host not set");
     let port = env::var("PORT").expect("Port not set");
 
-    let server = HttpServer::new(|| {
+    let server = HttpServer::new(move || {
         App::new()
             .configure(receipt::init_routes)
             .configure(receipt_item::init_routes)
+            .service(
+                SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", openapi.clone()),
+            )
     })
     .bind(format!("{}:{}", host, port))?;
 
