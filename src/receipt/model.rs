@@ -4,29 +4,30 @@ use crate::core::database::schema::receipt;
 use crate::core::database::schema::receipt::{last_modified_at, sum};
 use crate::core::ApiError;
 use crate::receipt_item::ReceiptItem;
-use bigdecimal::BigDecimal;
 use chrono::{DateTime, Utc};
 use diesel::{ExpressionMethods, Identifiable, Insertable, QueryDsl, Queryable, RunQueryDsl};
+use rust_decimal::Decimal;
+use rust_decimal_macros::dec;
 use serde::{Deserialize, Serialize};
+use std::clone::Clone;
 use std::ops::{Add, Mul};
-use std::str::FromStr;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct ReceiptView {
     pub id: Uuid,
-    pub sum: BigDecimal,
+    pub sum: Decimal,
 }
 
-#[derive(Serialize, Deserialize, Queryable, Insertable, Identifiable)]
+#[derive(Serialize, Deserialize, Queryable, Insertable, Identifiable, Clone)]
 #[diesel(table_name = crate::core::database::schema::receipt)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Receipt {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub last_modified_at: DateTime<Utc>,
-    pub sum: BigDecimal,
+    pub sum: Decimal,
 }
 
 impl Receipt {
@@ -51,7 +52,7 @@ impl Receipt {
             id: Uuid::new_v4(),
             created_at: Utc::now(),
             last_modified_at: Utc::now(),
-            sum: BigDecimal::from_str("0.00").unwrap().with_scale(2),
+            sum: dec!(0.00),
         };
 
         let created_receipt = diesel::insert_into(receipt::table)
@@ -61,20 +62,20 @@ impl Receipt {
         Ok(created_receipt)
     }
 
-    pub fn delete(receipt: &Receipt) -> Result<usize, ApiError> {
-        let result = diesel::delete(receipt).execute(&mut establish_connection())?;
+    pub fn delete(receipt: Receipt) -> Result<usize, ApiError> {
+        let result = diesel::delete(&receipt).execute(&mut establish_connection())?;
 
         Ok(result)
     }
 
     pub fn calculate_sum(receipt_id: Uuid) -> Result<Self, ApiError> {
         let receipt_items = ReceiptItem::get_all_by_receipt(receipt_id).unwrap();
-        let initial_sum = BigDecimal::from_str("0.00").unwrap().with_scale(2);
+        let initial_sum = dec!(0.00);
         let receipt_sum =
             receipt_items
                 .into_iter()
                 .fold(initial_sum, |accumulator, receipt_item| {
-                    accumulator.add(receipt_item.price.mul(receipt_item.amount))
+                    accumulator.add(receipt_item.price.mul(Decimal::from(receipt_item.amount)))
                 });
 
         let connection = &mut establish_connection();

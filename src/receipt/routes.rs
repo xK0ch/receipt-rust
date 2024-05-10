@@ -40,8 +40,8 @@ async fn create() -> Result<HttpResponse, ApiError> {
 async fn delete(receipt_id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
     let found_receipt: Receipt = Receipt::get_one(receipt_id.into_inner())?;
 
-    ReceiptItem::delete_all_by_receipt(&found_receipt)?;
-    Receipt::delete(&found_receipt)?;
+    ReceiptItem::delete_all_by_receipt(found_receipt.clone())?;
+    Receipt::delete(found_receipt.clone())?;
 
     Ok(HttpResponse::Ok().json(json!({})))
 }

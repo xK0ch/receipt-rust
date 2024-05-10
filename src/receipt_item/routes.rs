@@ -48,7 +48,7 @@ async fn update(
 async fn delete(receipt_item_id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
     let receipt_item = ReceiptItem::get_one(receipt_item_id.into_inner())?;
 
-    ReceiptItem::delete(&receipt_item)?;
+    ReceiptItem::delete(receipt_item)?;
 
     Ok(HttpResponse::NoContent().json(json!({})))
 }

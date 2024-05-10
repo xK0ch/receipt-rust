@@ -18,7 +18,7 @@ impl From<(ReceiptItemCreateOrder, Uuid)> for ReceiptItem {
     fn from((create_order, receipt_id): (ReceiptItemCreateOrder, Uuid)) -> Self {
         ReceiptItem {
             id: Uuid::new_v4(),
-            price: create_order.price.with_scale(2),
+            price: create_order.price,
             name: create_order.name,
             amount: create_order.amount,
             created_at: Utc::now(),

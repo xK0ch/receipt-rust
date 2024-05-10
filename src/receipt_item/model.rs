@@ -4,12 +4,12 @@ use crate::core::database::schema::receipt_item;
 use crate::core::database::schema::receipt_item::{amount, last_modified_at, name, price};
 use crate::core::ApiError;
 use crate::receipt::Receipt;
-use bigdecimal::BigDecimal;
 use chrono::{DateTime, Utc};
 use diesel::{
     Associations, BelongingToDsl, ExpressionMethods, Identifiable, Insertable, QueryDsl, Queryable,
     RunQueryDsl,
 };
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -18,14 +18,14 @@ pub struct ReceiptItemView {
     pub id: Uuid,
     pub name: String,
     pub amount: i32,
-    pub price: BigDecimal,
+    pub price: Decimal,
 }
 
 #[derive(Deserialize)]
 pub struct ReceiptItemCreateOrder {
     pub name: String,
     pub amount: i32,
-    pub price: BigDecimal,
+    pub price: Decimal,
     pub receipt_id: Uuid,
 }
 
@@ -33,7 +33,7 @@ pub struct ReceiptItemCreateOrder {
 pub struct ReceiptItemUpdateOrder {
     pub name: String,
     pub amount: i32,
-    pub price: BigDecimal,
+    pub price: Decimal,
 }
 
 #[derive(Serialize, Deserialize, Queryable, Insertable, Associations, Identifiable)]
@@ -46,7 +46,7 @@ pub struct ReceiptItem {
     pub last_modified_at: DateTime<Utc>,
     pub name: String,
     pub amount: i32,
-    pub price: BigDecimal,
+    pub price: Decimal,
     pub receipt_id: Uuid,
 }
 
@@ -101,16 +101,16 @@ impl ReceiptItem {
         Ok(updated_receipt_item)
     }
 
-    pub fn delete(receipt_item: &ReceiptItem) -> Result<usize, ApiError> {
-        let result = diesel::delete(receipt_item).execute(&mut establish_connection())?;
+    pub fn delete(receipt_item: ReceiptItem) -> Result<usize, ApiError> {
+        let result = diesel::delete(&receipt_item).execute(&mut establish_connection())?;
 
         Receipt::calculate_sum(receipt_item.receipt_id)?;
 
         Ok(result)
     }
 
-    pub fn delete_all_by_receipt(receipt: &Receipt) -> Result<usize, ApiError> {
-        let result = diesel::delete(ReceiptItem::belonging_to(receipt))
+    pub fn delete_all_by_receipt(receipt: Receipt) -> Result<usize, ApiError> {
+        let result = diesel::delete(ReceiptItem::belonging_to(&receipt))
             .execute(&mut establish_connection())?;
 
         Ok(result)
