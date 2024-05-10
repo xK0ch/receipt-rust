@@ -8,8 +8,9 @@ use uuid::Uuid;
 
 #[utoipa::path(
 responses(
-(status = 200, description = "OK", body = ReceiptView)
+(status = 200, description = "If the receipts where loaded successfully", body = Vec<ReceiptView>)
 ),
+tag = "Receipt"
 )]
 #[get("/receipts")]
 pub async fn get_all() -> Result<HttpResponse, ApiError> {
@@ -25,9 +26,10 @@ pub async fn get_all() -> Result<HttpResponse, ApiError> {
 
 #[utoipa::path(
 responses(
-(status = 200, description = "OK", body = ReceiptView),
-(status = 404, description = "NOT FOUND", body = ApiError)
+(status = 200, description = "If the receipt was loaded successfully", body = ReceiptView),
+(status = 404, description = "If the receipt was not found for the given id", body = ApiError)
 ),
+tag = "Receipt"
 )]
 #[get("/receipts/{receiptId}")]
 async fn get_one(receipt_id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
@@ -38,7 +40,9 @@ async fn get_one(receipt_id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> 
 
 #[utoipa::path(
 responses(
-(status = 200, description = "OK", body = ReceiptView),),
+(status = 200, description = "If the receipt was created successfully", body = ReceiptView)
+),
+tag = "Receipt"
 )]
 #[post("/receipts")]
 async fn create() -> Result<HttpResponse, ApiError> {
@@ -49,16 +53,19 @@ async fn create() -> Result<HttpResponse, ApiError> {
 
 #[utoipa::path(
 responses(
-(status = 200, description = "OK", body = ReceiptView),),
+(status = 204, description = "If the receipt was deleted successfully"),
+(status = 404, description = "If the receipt was not found for the given id", body = ApiError)
+),
+tag = "Receipt"
 )]
 #[delete("/receipts/{receiptId}")]
 async fn delete(receipt_id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
     let found_receipt: Receipt = Receipt::get_one(receipt_id.into_inner())?;
 
     ReceiptItem::delete_all_by_receipt(found_receipt.clone())?;
-    Receipt::delete(found_receipt.clone())?;
+    Receipt::delete(found_receipt)?;
 
-    Ok(HttpResponse::Ok().json(json!({})))
+    Ok(HttpResponse::NoContent().json(json!({})))
 }
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {

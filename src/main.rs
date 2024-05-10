@@ -5,6 +5,7 @@ pub mod core {
     pub use api::ApiError;
 
     pub mod api {
+        pub mod api_documentation;
         pub mod api_error;
 
         pub use api_error::ApiError;
@@ -41,13 +42,11 @@ pub mod receipt_item {
     pub use routes::init_routes;
 }
 
+use crate::core::api::api_documentation::ApiDoc;
 use crate::core::database::establish_connection;
-use crate::core::ApiError;
-use crate::receipt::{__path_create, __path_delete, __path_get_all, __path_get_one};
 use actix_web::{App, HttpServer};
 use dotenv::dotenv;
 use log::info;
-use receipt::ReceiptView;
 use std::env;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -56,13 +55,6 @@ use utoipa_swagger_ui::SwaggerUi;
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
-
-    #[derive(OpenApi)]
-    #[openapi(
-        paths(get_all, get_one, create, delete),
-        components(schemas(ReceiptView, ApiError))
-    )]
-    struct ApiDoc;
 
     let openapi = ApiDoc::openapi();
 
