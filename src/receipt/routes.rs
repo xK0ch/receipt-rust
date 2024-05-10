@@ -8,7 +8,8 @@ use uuid::Uuid;
 
 #[utoipa::path(
 responses(
-(status = 200, description = "OK", body = ReceiptView),),
+(status = 200, description = "OK", body = ReceiptView)
+),
 )]
 #[get("/receipts")]
 pub async fn get_all() -> Result<HttpResponse, ApiError> {
@@ -22,13 +23,23 @@ pub async fn get_all() -> Result<HttpResponse, ApiError> {
     Ok(HttpResponse::Ok().json(receipt_views))
 }
 
+#[utoipa::path(
+responses(
+(status = 200, description = "OK", body = ReceiptView),
+(status = 404, description = "NOT FOUND", body = ApiError)
+),
+)]
 #[get("/receipts/{receiptId}")]
-async fn get_one(id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
-    let receipt = Receipt::get_one(id.into_inner())?;
+async fn get_one(receipt_id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
+    let receipt = Receipt::get_one(receipt_id.into_inner())?;
 
     Ok(HttpResponse::Ok().json(ReceiptView::from(receipt)))
 }
 
+#[utoipa::path(
+responses(
+(status = 200, description = "OK", body = ReceiptView),),
+)]
 #[post("/receipts")]
 async fn create() -> Result<HttpResponse, ApiError> {
     let receipt = Receipt::create()?;
@@ -36,6 +47,10 @@ async fn create() -> Result<HttpResponse, ApiError> {
     Ok(HttpResponse::Created().json(ReceiptView::from(receipt)))
 }
 
+#[utoipa::path(
+responses(
+(status = 200, description = "OK", body = ReceiptView),),
+)]
 #[delete("/receipts/{receiptId}")]
 async fn delete(receipt_id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
     let found_receipt: Receipt = Receipt::get_one(receipt_id.into_inner())?;

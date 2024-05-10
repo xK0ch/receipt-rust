@@ -25,7 +25,10 @@ pub mod receipt {
 
     pub use model::Receipt;
     pub use model::ReceiptView;
+    pub use routes::__path_create;
+    pub use routes::__path_delete;
     pub use routes::__path_get_all;
+    pub use routes::__path_get_one;
     pub use routes::init_routes;
 }
 
@@ -39,7 +42,8 @@ pub mod receipt_item {
 }
 
 use crate::core::database::establish_connection;
-use crate::receipt::__path_get_all;
+use crate::core::ApiError;
+use crate::receipt::{__path_create, __path_delete, __path_get_all, __path_get_one};
 use actix_web::{App, HttpServer};
 use dotenv::dotenv;
 use log::info;
@@ -54,7 +58,10 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     #[derive(OpenApi)]
-    #[openapi(paths(get_all), components(schemas(ReceiptView)))]
+    #[openapi(
+        paths(get_all, get_one, create, delete),
+        components(schemas(ReceiptView, ApiError))
+    )]
     struct ApiDoc;
 
     let openapi = ApiDoc::openapi();

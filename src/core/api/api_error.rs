@@ -4,9 +4,10 @@ use diesel::result::Error as DieselError;
 use log::error;
 use serde_json::json;
 use std::fmt;
+use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, ToSchema)]
 pub struct ApiError {
     pub status_code: u16,
     pub message: String,

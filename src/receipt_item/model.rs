@@ -11,9 +11,10 @@ use diesel::{
 };
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+use utoipa::{IntoParams, ToSchema};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, ToSchema)]
 pub struct ReceiptItemView {
     pub id: Uuid,
     pub name: String,
@@ -21,7 +22,7 @@ pub struct ReceiptItemView {
     pub price: Decimal,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, IntoParams)]
 pub struct ReceiptItemCreateOrder {
     pub name: String,
     pub amount: i32,
@@ -29,7 +30,7 @@ pub struct ReceiptItemCreateOrder {
     pub receipt_id: Uuid,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, IntoParams)]
 pub struct ReceiptItemUpdateOrder {
     pub name: String,
     pub amount: i32,

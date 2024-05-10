@@ -14,7 +14,7 @@ use std::ops::{Add, Mul};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Serialize, ToSchema)]
 pub struct ReceiptView {
     pub id: Uuid,
     pub sum: Decimal,
