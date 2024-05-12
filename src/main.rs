@@ -26,10 +26,10 @@ pub mod receipt {
 
     pub use model::Receipt;
     pub use model::ReceiptView;
-    pub use routes::__path_create;
-    pub use routes::__path_delete;
-    pub use routes::__path_get_all;
-    pub use routes::__path_get_one;
+    pub use routes::__path_create_receipt;
+    pub use routes::__path_delete_receipt;
+    pub use routes::__path_get_all_receipts;
+    pub use routes::__path_get_one_receipt;
     pub use routes::init_routes;
 }
 
@@ -39,6 +39,14 @@ pub mod receipt_item {
     mod routes;
 
     pub use model::ReceiptItem;
+    pub use model::ReceiptItemCreateOrder;
+    pub use model::ReceiptItemUpdateOrder;
+    pub use model::ReceiptItemView;
+    pub use routes::__path_create_receipt_item;
+    pub use routes::__path_delete_receipt_item;
+    pub use routes::__path_get_all_receipt_items_by_receipt;
+    pub use routes::__path_get_one_receipt_item;
+    pub use routes::__path_update_receipt_item;
     pub use routes::init_routes;
 }
 
@@ -56,14 +64,13 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
 
+    info!("Generating api documentation");
     let openapi = ApiDoc::openapi();
 
     info!("Connecting to database");
-
     let connection = &mut establish_connection();
 
     info!("Starting database migration");
-
     core::database::run_migration(connection);
 
     let host = env::var("HOST").expect("Host not set");

@@ -70,20 +70,17 @@ impl Receipt {
 
     pub fn calculate_sum(receipt_id: Uuid) -> Result<Self, ApiError> {
         let receipt_items = ReceiptItem::get_all_by_receipt(receipt_id).unwrap();
-        let initial_sum = dec!(0.00);
         let receipt_sum =
             receipt_items
                 .into_iter()
-                .fold(initial_sum, |accumulator, receipt_item| {
+                .fold(dec!(0.00), |accumulator, receipt_item| {
                     accumulator.add(receipt_item.price.mul(Decimal::from(receipt_item.amount)))
                 });
-
-        let connection = &mut establish_connection();
 
         let updated_receipt = diesel::update(receipt::table)
             .filter(receipt::id.eq(receipt_id))
             .set((sum.eq(&receipt_sum), last_modified_at.eq(Utc::now())))
-            .get_result(connection)?;
+            .get_result(&mut establish_connection())?;
 
         Ok(updated_receipt)
     }

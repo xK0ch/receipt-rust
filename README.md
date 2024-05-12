@@ -32,3 +32,9 @@ For production these values need to be adjusted.
     docker-compose up --build
     ```
 
+## Api documentation
+
+This Api is documented with [***OpenAPI***](https://www.openapis.org/).
+
+- The OpenAPI json can be found [***here***](http://localhost:8080/api-docs/openapi.json)
+- For a visualisation of the endpoints go [***here***](http://localhost:8080/swagger-ui/index.html#/)
