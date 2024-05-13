@@ -11,14 +11,7 @@ use rust_decimal_macros::dec;
 use serde::{Deserialize, Serialize};
 use std::clone::Clone;
 use std::ops::{Add, Mul};
-use utoipa::ToSchema;
 use uuid::Uuid;
-
-#[derive(Serialize, ToSchema)]
-pub struct ReceiptView {
-    pub id: Uuid,
-    pub sum: Decimal,
-}
 
 #[derive(Serialize, Deserialize, Queryable, Insertable, Identifiable, Clone)]
 #[diesel(table_name = crate::core::database::schema::receipt)]

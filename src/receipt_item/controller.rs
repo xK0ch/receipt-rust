@@ -1,6 +1,7 @@
 use crate::core::ApiError;
-use crate::receipt_item::model::{ReceiptItemCreateOrder, ReceiptItemUpdateOrder, ReceiptItemView};
-use crate::receipt_item::ReceiptItem;
+use crate::receipt_item::{
+    ReceiptItem, ReceiptItemCreateOrder, ReceiptItemUpdateOrder, ReceiptItemView,
+};
 use actix_web::{delete, get, post, put, web, HttpResponse};
 use serde_json::json;
 use uuid::Uuid;

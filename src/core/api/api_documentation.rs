@@ -17,23 +17,23 @@ use utoipa::OpenApi;
     components(
         schemas(
             ApiError,
-            ReceiptView,
-            ReceiptItemView,
             ReceiptItemCreateOrder,
-            ReceiptItemUpdateOrder
+            ReceiptItemUpdateOrder,
+            ReceiptItemView,
+            ReceiptView
         )
     ),
     info(description = "Api for creating Receipts and the corresponding ReceiptsItems"),
     paths(
-        get_one_receipt,
-        get_all_receipts,
-        delete_receipt,
         create_receipt,
-        get_all_receipt_items_by_receipt,
-        get_one_receipt_item,
-        update_receipt_item,
+        create_receipt_item,
+        delete_receipt,
         delete_receipt_item,
-        create_receipt_item
+        get_all_receipts,
+        get_all_receipt_items_by_receipt,
+        get_one_receipt,
+        get_one_receipt_item,
+        update_receipt_item
     )
 )]
 pub struct ApiDoc;

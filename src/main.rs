@@ -20,34 +20,36 @@ pub mod core {
 }
 
 pub mod receipt {
-    mod mapper;
-    mod model;
-    mod routes;
+    mod controller;
+    mod receipt;
+    mod receipt_view;
 
-    pub use model::Receipt;
-    pub use model::ReceiptView;
-    pub use routes::__path_create_receipt;
-    pub use routes::__path_delete_receipt;
-    pub use routes::__path_get_all_receipts;
-    pub use routes::__path_get_one_receipt;
-    pub use routes::init_routes;
+    pub use controller::__path_create_receipt;
+    pub use controller::__path_delete_receipt;
+    pub use controller::__path_get_all_receipts;
+    pub use controller::__path_get_one_receipt;
+    pub use controller::init_routes;
+    pub use receipt::Receipt;
+    pub use receipt_view::ReceiptView;
 }
 
 pub mod receipt_item {
-    mod mapper;
-    mod model;
-    mod routes;
+    mod controller;
+    mod receipt_item;
+    mod receipt_item_create_order;
+    mod receipt_item_update_order;
+    mod receipt_item_view;
 
-    pub use model::ReceiptItem;
-    pub use model::ReceiptItemCreateOrder;
-    pub use model::ReceiptItemUpdateOrder;
-    pub use model::ReceiptItemView;
-    pub use routes::__path_create_receipt_item;
-    pub use routes::__path_delete_receipt_item;
-    pub use routes::__path_get_all_receipt_items_by_receipt;
-    pub use routes::__path_get_one_receipt_item;
-    pub use routes::__path_update_receipt_item;
-    pub use routes::init_routes;
+    pub use controller::__path_create_receipt_item;
+    pub use controller::__path_delete_receipt_item;
+    pub use controller::__path_get_all_receipt_items_by_receipt;
+    pub use controller::__path_get_one_receipt_item;
+    pub use controller::__path_update_receipt_item;
+    pub use controller::init_routes;
+    pub use receipt_item::ReceiptItem;
+    pub use receipt_item_create_order::ReceiptItemCreateOrder;
+    pub use receipt_item_update_order::ReceiptItemUpdateOrder;
+    pub use receipt_item_view::ReceiptItemView;
 }
 
 use crate::core::api::api_documentation::ApiDoc;

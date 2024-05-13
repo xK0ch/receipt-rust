@@ -1,5 +1,5 @@
 use crate::core::ApiError;
-use crate::receipt::model::ReceiptView;
+use crate::receipt::receipt_view::ReceiptView;
 use crate::receipt::Receipt;
 use crate::receipt_item::ReceiptItem;
 use actix_web::{delete, get, post, web, HttpResponse};

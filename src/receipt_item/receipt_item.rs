@@ -4,6 +4,7 @@ use crate::core::database::schema::receipt_item;
 use crate::core::database::schema::receipt_item::{amount, last_modified_at, name, price};
 use crate::core::ApiError;
 use crate::receipt::Receipt;
+use crate::receipt_item::{ReceiptItemCreateOrder, ReceiptItemUpdateOrder};
 use chrono::{DateTime, Utc};
 use diesel::{
     Associations, BelongingToDsl, ExpressionMethods, Identifiable, Insertable, QueryDsl, Queryable,
@@ -11,33 +12,9 @@ use diesel::{
 };
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(Serialize, ToSchema)]
-pub struct ReceiptItemView {
-    pub id: Uuid,
-    pub name: String,
-    pub amount: i32,
-    pub price: Decimal,
-}
-
-#[derive(Deserialize, ToSchema)]
-pub struct ReceiptItemCreateOrder {
-    pub name: String,
-    pub amount: i32,
-    pub price: Decimal,
-    pub receipt_id: Uuid,
-}
-
-#[derive(Deserialize, ToSchema)]
-pub struct ReceiptItemUpdateOrder {
-    pub name: String,
-    pub amount: i32,
-    pub price: Decimal,
-}
-
-#[derive(Serialize, Deserialize, Queryable, Insertable, Associations, Identifiable)]
+#[derive(Serialize, Deserialize, Queryable, Insertable, Associations, Identifiable, Clone)]
 #[diesel(belongs_to(Receipt))]
 #[diesel(table_name = crate::core::database::schema::receipt_item)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
@@ -115,5 +92,19 @@ impl ReceiptItem {
             .execute(&mut establish_connection())?;
 
         Ok(result)
+    }
+}
+
+impl From<(ReceiptItemCreateOrder, Uuid)> for ReceiptItem {
+    fn from((create_order, receipt_id): (ReceiptItemCreateOrder, Uuid)) -> Self {
+        ReceiptItem {
+            id: Uuid::new_v4(),
+            price: create_order.price,
+            name: create_order.name,
+            amount: create_order.amount,
+            created_at: Utc::now(),
+            last_modified_at: Utc::now(),
+            receipt_id,
+        }
     }
 }
